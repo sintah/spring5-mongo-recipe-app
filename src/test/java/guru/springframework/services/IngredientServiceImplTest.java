@@ -7,6 +7,7 @@ import guru.springframework.converters.UnitOfMeasureCommandToUnitOfMeasure;
 import guru.springframework.converters.UnitOfMeasureToUnitOfMeasureCommand;
 import guru.springframework.domain.Ingredient;
 import guru.springframework.domain.Recipe;
+import guru.springframework.domain.UnitOfMeasure;
 import guru.springframework.repositories.RecipeReactiveRepository;
 import guru.springframework.repositories.RecipeRepository;
 import guru.springframework.repositories.UnitOfMeasureReactiveRepository;
@@ -89,7 +90,7 @@ public class IngredientServiceImplTest {
 
 
     @Test
-    public void testSaveRecipeCommand() throws Exception {
+    public void testSaveIngredientCommand() throws Exception {
         //given
         IngredientCommand command = new IngredientCommand();
         command.setId("3");
@@ -101,9 +102,13 @@ public class IngredientServiceImplTest {
         savedRecipe.addIngredient(new Ingredient());
         savedRecipe.getIngredients().iterator().next().setId("3");
 
-        when(recipeReactiveRepository.findById(anyString())).thenReturn(Mono.just(recipe));
-        when(recipeReactiveRepository.save(any())).thenReturn(Mono.just(savedRecipe));
+        UnitOfMeasure uom1 = new UnitOfMeasure();
+        uom1.setDescription("Desc");
 
+        when(recipeReactiveRepository.findById(anyString())).thenReturn(Mono.just(recipe));
+        when(recipeReactiveRepository.save(any(Recipe.class))).thenReturn(Mono.just(savedRecipe));
+        when(unitOfMeasureRepository.findByDescription(anyString())).thenReturn(Mono.just(uom1));
+        when(unitOfMeasureRepository.findById(anyString())).thenReturn(Mono.just(uom1));
         //when
         IngredientCommand savedCommand = ingredientService.saveIngredientCommand(command).block();
 
@@ -122,7 +127,7 @@ public class IngredientServiceImplTest {
         Ingredient ingredient = new Ingredient();
         ingredient.setId("3");
         recipe.addIngredient(ingredient);
-        ingredient.setRecipe(recipe);
+
 
         when(recipeReactiveRepository.save(any(Recipe.class))).thenReturn(Mono.just(recipe));
         when(recipeReactiveRepository.findById(anyString())).thenReturn(Mono.just(recipe));
