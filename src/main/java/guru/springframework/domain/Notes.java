@@ -18,7 +18,6 @@ public class Notes {
 
     @Id
     private String id = UUID.randomUUID().toString();
-    private Recipe recipe;
     private String recipeNotes;
 
 }
