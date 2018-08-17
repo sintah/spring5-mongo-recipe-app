@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 
@@ -21,8 +21,15 @@ import javax.validation.Valid;
 public class RecipeController {
 
 
-    private static final String RECIPE_RECIPEFORM_URL = "recipe/recipeform";
+    private static final String RECIPE_RECIPEFORM_URL = "recipe/new";
     private final RecipeService recipeService;
+
+    private WebDataBinder webDataBinder;
+
+    @InitBinder
+    public void initBinder(WebDataBinder webDataBinder) {
+        this.webDataBinder = webDataBinder;
+    }
 
     public RecipeController(RecipeService recipeService) {
         this.recipeService = recipeService;
@@ -31,8 +38,7 @@ public class RecipeController {
     @GetMapping("/recipe/{id}/show")
     public String showById(@PathVariable String id, Model model){
 
-        model.addAttribute("recipe", recipeService.findById(id).block());
-
+        model.addAttribute("recipe", recipeService.findById(id));
         return "recipe/show";
     }
 
@@ -40,17 +46,19 @@ public class RecipeController {
     public String newRecipe(Model model){
         model.addAttribute("recipe", new RecipeCommand());
 
-        return "recipe/recipeform";
+        return "recipe/new";
     }
 
     @GetMapping("recipe/{id}/update")
     public String updateRecipe(@PathVariable String id, Model model){
-        model.addAttribute("recipe", recipeService.findCommandById(id).block());
+        model.addAttribute("recipe", recipeService.findCommandById(id));
         return RECIPE_RECIPEFORM_URL;
     }
 
     @PostMapping("recipe")
-    public String saveOrUpdate(@Valid @ModelAttribute("recipe") RecipeCommand command, BindingResult bindingResult){
+    public String saveOrUpdate(@ModelAttribute("recipe") RecipeCommand command){
+        webDataBinder.validate();
+        BindingResult bindingResult = webDataBinder.getBindingResult();
 
         if(bindingResult.hasErrors()){
 
@@ -75,7 +83,7 @@ public class RecipeController {
         return "redirect:/";
     }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+ /*   @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
     public ModelAndView handleNotFound(Exception exception){
 
@@ -88,6 +96,6 @@ public class RecipeController {
         modelAndView.addObject("exception", exception);
 
         return modelAndView;
-    }
+    }*/
 
 }

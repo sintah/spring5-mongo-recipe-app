@@ -45,7 +45,7 @@ public class IngredientServiceImpl implements IngredientService {
                 .findById(recipeId)
                 .flatMapIterable(Recipe::getIngredients)
                 .filter(ingredient -> ingredient.getId().equalsIgnoreCase(ingredientId))
-                .single()
+                .singleOrEmpty()
                 .map(ingredient -> {
                     IngredientCommand command = ingredientToIngredientCommand.convert(ingredient);
                     command.setRecipeId(recipeId);
@@ -76,9 +76,10 @@ public class IngredientServiceImpl implements IngredientService {
                 if (ingredientFound.getUom() == null) {
                     throw new RuntimeException("UoM not found.");
                 }
+                recipe.addIngredient(ingredientFound);
             } else {
                 Ingredient ingredient = ingredientCommandToIngredient.convert(command);
-                ingredient.setUom(unitOfMeasureRepository.findById(command.getId()).block());
+                ingredient.setUom(unitOfMeasureRepository.findById(command.getUom().getId()).block());
                 recipe.addIngredient(ingredient);
             }
 

@@ -14,6 +14,7 @@ import java.util.UUID;
  */
 @Getter
 @Setter
+@Document
 public class Ingredient {
 
     @Id

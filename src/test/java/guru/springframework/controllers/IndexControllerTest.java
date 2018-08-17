@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.ui.Model;
@@ -28,6 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Created by jt on 6/17/17.
  */
 public class IndexControllerTest {
+
+    WebTestClient webTestClient;
 
     @Mock
     RecipeService recipeService;
@@ -54,7 +57,7 @@ public class IndexControllerTest {
                 .andExpect(view().name("index"));
     }
 
-    @Test
+/*    @Test
     public void getIndexPage() throws Exception {
 
 
@@ -81,6 +84,6 @@ public class IndexControllerTest {
         verify(model, times(1)).addAttribute(eq("recipes"), argumentCaptor.capture());
         List<Recipe> recipeList = argumentCaptor.getValue();
         assertEquals(2, recipeList.size());
-    }
+    }*/
 
 }
