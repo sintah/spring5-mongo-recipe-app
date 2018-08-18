@@ -9,6 +9,7 @@ import guru.springframework.services.UnitOfMeasureService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Created by jt on 6/28/17.
@@ -57,9 +59,14 @@ public class IngredientController {
     @GetMapping("recipe/{recipeId}/ingredient/{id}/show")
     public String showRecipeIngredient(@PathVariable String recipeId,
                                        @PathVariable String id, Model model) {
-        model.addAttribute("ingredient",
-                ingredientService.findByRecipeIdAndIngredientId(recipeId, id));
-        return "recipe/ingredient/show";
+        Mono<IngredientCommand> commandMono = ingredientService.findByRecipeIdAndIngredientId(recipeId, id);
+
+        model.addAttribute("ingredient",commandMono);
+        if (commandMono.block() != null) {
+            return "recipe/ingredient/show";
+        } else {
+            return "redirect:/recipe/"+recipeId + "/ingredients";
+        }
     }
 
     @GetMapping("recipe/{recipeId}/ingredient/new")
@@ -106,10 +113,15 @@ public class IngredientController {
         command.setRecipeId(recipeId);
         IngredientCommand savedCommand = ingredientService.saveIngredientCommand(command).block();
 
-        log.debug("saved receipe id:" + savedCommand.getRecipeId());
-        log.debug("saved ingredient id:" + savedCommand.getId());
-
-        return "redirect:/recipe/" + savedCommand.getRecipeId() + "/ingredient/" + savedCommand.getId() + "/show";
+        if (savedCommand != null && savedCommand.getRecipeId() != null) {
+            if (!StringUtils.isEmpty(savedCommand.getId())) {
+                return "redirect:/recipe/" + savedCommand.getRecipeId() + "/ingredient/" + savedCommand.getId() + "/show";
+            } else {
+                return "redirect:/recipe/" + savedCommand.getRecipeId() + "/ingredients";
+            }
+        } else {
+            return "redirect:/";
+        }
 
 
     }
